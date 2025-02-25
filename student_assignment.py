@@ -1,4 +1,3 @@
-from datetime import datetime as dt
 import datetime
 import chromadb
 import traceback
@@ -32,32 +31,11 @@ collection = chroma_client.get_or_create_collection(
 )
 
 def generate_hw01():
-    gpt_emb_version = 'text-embedding-ada-002'
-    gpt_emb_config = get_model_configuration(gpt_emb_version)
-
-    dbpath = "./"
-
-    chroma_client = chromadb.PersistentClient(path=dbpath)
-
-    openai_ef = embedding_functions.OpenAIEmbeddingFunction(
-        api_key = gpt_emb_config['api_key'],
-        api_base = gpt_emb_config['api_base'],
-        api_type = gpt_emb_config['openai_type'],
-        api_version = gpt_emb_config['api_version'],
-        deployment_id = gpt_emb_config['deployment_name']
-    )
-
-    collection = chroma_client.get_or_create_collection(
-        name="TRAVEL",
-        metadata={"hnsw:space": "cosine"},
-        embedding_function=openai_ef
-    )
-    
     filename = 'COA_OpenData.csv'
     df = pd.read_csv(filename)
 
     for index, row in df.iterrows():
-        date_object = dt.strptime(row["CreateDate"], "%Y-%m-%d")
+        date_object = datetime.datetime.strptime(row["CreateDate"], "%Y-%m-%d")
         timestamp = int(date_object.timestamp())
         collection.add(
             ids=[str(row["ID"])],
@@ -67,25 +45,6 @@ def generate_hw01():
     return collection
     
 def generate_hw02(question, city, store_type, start_date, end_date):
-    gpt_emb_version = 'text-embedding-ada-002'
-    gpt_emb_config = get_model_configuration(gpt_emb_version)
-
-    dbpath = "./"
-    chroma_client = chromadb.PersistentClient(path=dbpath)
-
-    openai_ef = embedding_functions.OpenAIEmbeddingFunction(
-        api_key = gpt_emb_config['api_key'],
-        api_base = gpt_emb_config['api_base'],
-        api_type = gpt_emb_config['openai_type'],
-        api_version = gpt_emb_config['api_version'],
-        deployment_id = gpt_emb_config['deployment_name']
-    )
-
-    collection = chroma_client.get_or_create_collection(
-        name="TRAVEL",
-        metadata={"hnsw:space": "cosine"},
-        embedding_function=openai_ef
-    )
     start_date = int(start_date.timestamp())
     end_date = int(end_date.timestamp())
     result = collection.query(
@@ -102,26 +61,6 @@ def generate_hw02(question, city, store_type, start_date, end_date):
     return store_names
     
 def generate_hw03(question, store_name, new_store_name, city, store_type):
-    
-    gpt_emb_version = 'text-embedding-ada-002'
-    gpt_emb_config = get_model_configuration(gpt_emb_version)
-
-    dbpath = "./"
-    chroma_client = chromadb.PersistentClient(path=dbpath)
-
-    openai_ef = embedding_functions.OpenAIEmbeddingFunction(
-        api_key = gpt_emb_config['api_key'],
-        api_base = gpt_emb_config['api_base'],
-        api_type = gpt_emb_config['openai_type'],
-        api_version = gpt_emb_config['api_version'],
-        deployment_id = gpt_emb_config['deployment_name']
-    )
-
-    collection = chroma_client.get_or_create_collection(
-        name="TRAVEL",
-        metadata={"hnsw:space": "cosine"},
-        embedding_function=openai_ef
-    )
     results = collection.query(
         query_texts=[store_name],
         n_results=1 
@@ -143,8 +82,7 @@ def generate_hw03(question, store_name, new_store_name, city, store_type):
             ]},
         include=["metadatas", "distances"],
     )
-    store_names = [metadata['new_store_name'] if metadata.get('new_store_name') else metadata['name']
-    for metadata, distance in zip(result['metadatas'][0], result['distances'][0]) if distance < 0.2]
+    store_names = [metadata['new_store_name'] if metadata.get('new_store_name') else metadata['name'] for metadata, distance in zip(result['metadatas'][0], result['distances'][0]) if distance < 0.2]
     return store_names
 
     
