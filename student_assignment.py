@@ -11,8 +11,8 @@ gpt_emb_config = get_model_configuration(gpt_emb_version)
 
 dbpath = "./"
 
-filename = 'COA_OpenData.csv'
-df = pd.read_csv(filename)
+# filename = 'COA_OpenData.csv'
+# df = pd.read_csv(filename)
 
 chroma_client = chromadb.PersistentClient(path=dbpath)
 
@@ -31,14 +31,14 @@ collection = chroma_client.get_or_create_collection(
 )
 
 def generate_hw01():
-    for index, row in df.iterrows():
-        date_object = datetime.datetime.strptime(row["CreateDate"], "%Y-%m-%d")
-        timestamp = int(date_object.timestamp())
-        collection.add(
-            ids=[str(row["ID"])],
-            documents=row["HostWords"],
-            metadatas=[{"file_name": filename, "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": timestamp }]
-        )
+    # for index, row in df.iterrows():
+    #     date_object = datetime.datetime.strptime(row["CreateDate"], "%Y-%m-%d")
+    #     timestamp = int(date_object.timestamp())
+    #     collection.add(
+    #         ids=[str(row["ID"])],
+    #         documents=row["HostWords"],
+    #         metadatas=[{"file_name": filename, "name": row["Name"], "type": row["Type"], "address": row["Address"], "tel": row["Tel"], "city": row["City"], "town": row["Town"], "date": timestamp }]
+    #     )
     return collection
     
 def generate_hw02(question, city, store_type, start_date, end_date):
@@ -102,6 +102,6 @@ def demo(question):
     
     return collection
 
-#print(generate_hw01())
-#print(generate_hw02("我想要找有關茶餐點的店家", ["宜蘭縣", "新北市"], ["美食"], datetime.datetime(2024, 4, 1), datetime.datetime(2024, 5, 1)))
+print(generate_hw01())
+print(generate_hw02("我想要找有關茶餐點的店家", ["宜蘭縣", "新北市"], ["美食"], datetime.datetime(2024, 4, 1), datetime.datetime(2024, 5, 1)))
 print(generate_hw03("我想要找南投縣的田媽媽餐廳，招牌是蕎麥麵","耄饕客棧","田媽媽（耄饕客棧）",["南投縣"],["美食"]))
